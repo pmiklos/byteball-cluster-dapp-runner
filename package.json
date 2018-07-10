@@ -1,0 +1,23 @@
+{
+  "name": "byteball-cluster-dapp-runner",
+  "version": "0.0.1",
+  "description": "A Byteball cluster worker that runs dApps",
+  "main": "dappRunner.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "crypto",
+    "dapp",
+    "byteball",
+    "cluster"
+  ],
+  "author": "Peter Miklos",
+  "license": "MIT",
+  "dependencies": {
+    "byteball-cluster": "github:pmiklos/byteball-cluster",
+    "headless-byteball": "github:byteball/headless-byteball#npm",
+    "kbyte": "0.0.2",
+    "sandbox": "^0.8.6"
+  }
+}
