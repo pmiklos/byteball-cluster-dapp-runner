@@ -17,7 +17,6 @@
   "dependencies": {
     "byteball-cluster": "github:pmiklos/byteball-cluster",
     "headless-byteball": "github:byteball/headless-byteball#npm",
-    "kbyte": "0.0.2",
     "sandbox": "^0.8.6"
   }
 }
