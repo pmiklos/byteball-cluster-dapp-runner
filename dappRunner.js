@@ -1,15 +1,22 @@
 /*jslint node: true */
 "use strict";
 
+const { VM } = require('vm2');
 const eventBus = require("byteballcore/event_bus.js");
 const config = require("byteballcore/conf.js");
 const cluster = require("byteball-cluster");
-const Sandbox = require("sandbox/lib/sandbox.js");
 const network = require("byteballcore/network.js");
 require("headless-byteball");
 
 const worker = cluster.Worker;
-const sandbox = new Sandbox();
+const sandbox = {
+    timeout: 1000,
+    sandbox: {
+        console: {
+            log: function() {}
+        }
+    }
+};
 
 function readDappFromUnit(unitHash, callback) {
     network.requestFromLightVendor("get_joint", unitHash, (ws, request, response) => {
@@ -52,14 +59,19 @@ worker.on("dapp", (coordinator, message, callback) => {
 
         console.log("[%s] Source code retrieved: %s" + message.unit, code);
 
-        sandbox.run(code, (output) => {
-            callback(null, {
-                result: output.result
-            });
+        try {
+            let vm = new VM(sandbox);
+            let result = vm.run(code);
 
             console.log("[%s] Executed", message.unit);
 
-            output.console.forEach((line) => console.log("DAPP [%s]: %s", message.unit, line));
-        });
+            callback(null, {
+                result: result
+            });
+        }
+        catch (e) {
+            callback(e);
+        }
     });
+
 });
