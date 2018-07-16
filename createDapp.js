@@ -1,6 +1,7 @@
 /*jslint node: true */
 "use strict";
 
+const fs = require('fs');
 const objectHash = require('byteballcore/object_hash.js');
 const headlessWallet = require("headless-byteball");
 const eventBus = require('byteballcore/event_bus.js');
@@ -10,7 +11,7 @@ function onError(err) {
     throw Error(err);
 }
 
-function createDapp(payerAddress, onDone) {
+function createDapp(payerAddress, dappSource, onDone) {
     var network = require('byteballcore/network.js');
     var callbacks = composer.getSavingCallbacks({
         ifNotEnoughFunds: onError,
@@ -22,9 +23,7 @@ function createDapp(payerAddress, onDone) {
         }
     });
 
-    var dapp = "console.log('Answer to the Ultimate Question of Life, the Universe, and Everything'); 40 + 2";
-
-    composeTextJoint(payerAddress, dapp, headlessWallet.signer, callbacks);
+    composeTextJoint(payerAddress, dappSource, headlessWallet.signer, callbacks);
 }
 
 function composeTextJoint(from_address, text, signer, callbacks) {
@@ -45,6 +44,14 @@ function composeTextJoint(from_address, text, signer, callbacks) {
 
 eventBus.on('headless_wallet_ready', () => {
     headlessWallet.readFirstAddress((address) => {
-        createDapp(address, () => process.exit(0));
+        if (process.argv.length < 3) {
+            throw Error("DApp file name must be the first argument");
+        }
+
+        fs.readFile(process.argv[2], (err, source) => {
+            if (err) throw Error(err);
+            createDapp(address, source.toString("utf-8"), () => process.exit(0));
+        });
+
     });
 });

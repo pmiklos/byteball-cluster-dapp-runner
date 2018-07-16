@@ -9,14 +9,6 @@ const network = require("byteballcore/network.js");
 require("headless-byteball");
 
 const worker = cluster.Worker;
-const sandbox = {
-    timeout: 1000,
-    sandbox: {
-        console: {
-            log: function() {}
-        }
-    }
-};
 
 function readDappFromUnit(unitHash, callback) {
     network.requestFromLightVendor("get_joint", unitHash, (ws, request, response) => {
@@ -58,6 +50,16 @@ worker.on("dapp", (coordinator, message, callback) => {
         if (err) return callback(err);
 
         console.log("[%s] Source code retrieved: %s" + message.unit, code);
+
+        let sandbox = {
+            timeout: 1000,
+            sandbox: {
+                console: {
+                    log: function() {}
+                },
+                params: message.params
+            }
+        };
 
         try {
             let vm = new VM(sandbox);
